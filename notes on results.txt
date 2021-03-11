@@ -1,0 +1,3 @@
+RDS - 8CPU/16Gb, disk - 600 Gb SSD
+
+1. Simple data generation (insert only)  20.000/sec - CPU load is 50%, storage/IO - 90%

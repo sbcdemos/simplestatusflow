@@ -17,6 +17,26 @@ app.post('/data', async (req, res) =>{
     const qr = await pool.query(newDataSQL, newDataLine);
     res.send(qr.rows[0]);
 })
+app.get('/data/moderate', async (req, res)=>{
+    const updateAndGetID_SQL='UPDATE Userdata \
+    SET Status = 1, \
+        TheDate=CURRENT_TIMESTAMP \
+    WHERE id = ( \
+            SELECT Id\
+            FROM userdata\
+            WHERE Status = 0 or (status=1 and TheDate<CURRENT_TIMESTAMP- INTERVAL \'20 minute\')\
+            ORDER BY thedate \
+            LIMIT 1 \
+        ) \
+    RETURNING ID';
+    const qr= await pool.query(updateAndGetID_SQL);
+    res.send(qr.rows[0]);
+})
+app.put('/data/moderate', async (req, res)=>{
+    const setModerated_SQL =' UPDATE UserData SET Status=2 WHERE ID=$1';
+    const qr = await pool.query(setModerated_SQL, [req.body.recordid]);
+    res.send('OK');
+})
 
 
 app.listen(port, () => {
