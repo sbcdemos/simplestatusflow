@@ -4,13 +4,7 @@ const port = 8070
 app.use(express.json())
 
 const { Pool, Client } = require('pg')
-const pool = new Pool({
-    user: 'root',
-    host: '192.168.0.77',
-    database: 'work',
-    password: '3Edcrfvtgb120-',
-    port: 5432
-})
+const pool = new Pool()
 
 app.get('/', async (req, res) => {
     const qres = await pool.query('SELECT NOW()')
