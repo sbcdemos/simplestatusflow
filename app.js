@@ -27,10 +27,17 @@ app.get('/data/moderate', async (req, res)=>{
             WHERE Status = 0 or (status=1 and TheDate<CURRENT_TIMESTAMP- INTERVAL \'20 minute\')\
             ORDER BY thedate \
             LIMIT 1 \
-        ) \
+        ) and Status=0 \
     RETURNING ID';
-    const qr= await pool.query(updateAndGetID_SQL);
-    res.send(qr.rows[0]);
+    var response={};
+    while (true){
+        const qr= await pool.query(updateAndGetID_SQL);
+        if (qr.rows.length==1){
+            response = qr.rows[0];
+            break
+        }
+    }
+    res.send(response);
 })
 app.put('/data/moderate', async (req, res)=>{
     const setModerated_SQL =' UPDATE UserData SET Status=2 WHERE ID=$1';

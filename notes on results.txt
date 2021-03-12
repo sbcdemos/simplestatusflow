@@ -1,3 +1,9 @@
 RDS - 8CPU/16Gb, disk - 600 Gb SSD
 
 1. Simple data generation (insert only)  20.000/sec - CPU load is 50%, storage/IO - 90%
+
+2. Full Generation - insert+update+update - 3000/sec - CPU load is 60%
+
+RDS - 32CPU/64Gb
+
+3. FUll Generation - insert+update+update = 5000/sec
