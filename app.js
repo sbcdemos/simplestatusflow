@@ -18,6 +18,7 @@ app.post('/data', async (req, res) =>{
     res.send(qr.rows[0]);
 })
 app.get('/data/moderate', async (req, res)=>{
+    var rand = Math.floor(Math.random() * 100) + 1;
     const updateAndGetID_SQL='UPDATE Userdata \
     SET Status = 1, \
         TheDate=CURRENT_TIMESTAMP \
@@ -26,16 +27,20 @@ app.get('/data/moderate', async (req, res)=>{
             FROM userdata\
             WHERE Status = 0 or (status=1 and TheDate<CURRENT_TIMESTAMP- INTERVAL \'20 minute\')\
             ORDER BY thedate \
+            OFFSET '+rand+' \
             LIMIT 1 \
         ) and Status=0 \
     RETURNING ID';
     var response={};
+    var trycount=0;
     while (true){
         const qr= await pool.query(updateAndGetID_SQL);
         if (qr.rows.length==1){
             response = qr.rows[0];
             break
         }
+        trycount++;
+        console.log("retrying GetNext one more time: "+ trycount);
     }
     res.send(response);
 })
