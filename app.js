@@ -18,37 +18,29 @@ app.post('/data', async (req, res) =>{
     res.send(qr.rows[0]);
 })
 app.get('/data/moderate', async (req, res)=>{
-    const getRandomBoundariesSQL = '\
-            SELECT min(id) as MinValue, max(id) as MaxValue \
+    var rand = Math.floor(Math.random() * 100) + 1;
+    const updateAndGetID_SQL='UPDATE Userdata \
+    SET Status = 1, \
+        TheDate=CURRENT_TIMESTAMP \
+    WHERE id = ( \
+            SELECT Id\
             FROM userdata\
-            WHERE Status = 0\
-    ';
-    // or (status=1 and TheDate<CURRENT_TIMESTAMP- INTERVAL \'20 minute\')\
+            WHERE Status = 0 \
+            ORDER BY thedate \
+            OFFSET '+rand+' \
+            LIMIT 1 \
+        ) and Status=0 \
+    RETURNING ID';
     var response={};
     var trycount=0;
     while (true){
-        var valueBoundaries=await pool.query(getRandomBoundariesSQL);
-        var rand = valueBoundaries.rows[0].minvalue+Math.floor(Math.random() * (valueBoundaries.rows[0].maxvalue-valueBoundaries.rows[0].minvalue)) + 1;
-
-        const updateAndGetID_SQL='UPDATE Userdata \
-        SET Status = 1, \
-            TheDate=CURRENT_TIMESTAMP \
-        WHERE id = ( \
-                SELECT max(Id)\
-                FROM userdata\
-                WHERE id<= '+rand+'\
-            ) and Status=0 \
-        RETURNING ID';
         const qr= await pool.query(updateAndGetID_SQL);
         if (qr.rows.length==1){
             response = qr.rows[0];
             break
         }
         trycount++;
-        console.log("retrying GetNext one more time: "+ trycount+' last got id:'+rand);
-        if (trycount>10){
-            throw new Error('I cant get anything to moderate ');
-        }
+        console.log("retrying GetNext one more time: "+ trycount);
     }
     res.send(response);
 })
